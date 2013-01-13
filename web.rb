@@ -9,7 +9,7 @@ require 'omniauth-google-oauth2'
 class OAuthDemo < Sinatra::Base
     use Rack::Session::Cookie
     use OmniAuth::Builder do
-        provider :google_oauth2, ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {access_type: 'online', approval_prompt: ''}
+        provider :google_oauth2, ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {access_type: 'online', approval_prompt: '', scope: 'userinfo.email'}
     end
 
     get '/' do
