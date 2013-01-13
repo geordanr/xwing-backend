@@ -4,10 +4,10 @@
     %title Hello
   %body
     %p
-      Hello.  The time is
-      = @time
+      Hello.  The time is #{@time}.
     %p
-      %a{:href => '/auth/google_oauth2'} Log in with Google
+      - @providers.each do |provider|
+        %a{:href => "/auth/#{provider}"} Log in with #{provider}
     %p
       %a{:href => '/protected'} This link
       is protected.
