@@ -5,11 +5,13 @@ require 'haml'
 
 require 'omniauth'
 require 'omniauth-google-oauth2'
+require 'omniauth-facebook'
 
 class OAuthDemo < Sinatra::Base
     use Rack::Session::Cookie
     use OmniAuth::Builder do
-        provider :google_oauth2, ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {access_type: 'online', approval_prompt: '', scope: 'userinfo.email'}
+        provider :google_oauth2, ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {access_type: 'online', approval_prompt: ''}
+        provider :facebook, ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET']
     end
 
     get '/' do
