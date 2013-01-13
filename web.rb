@@ -20,7 +20,7 @@ class OAuthDemo < Sinatra::Base
     # Support both GET and POST for callbacks
     %w(get post).each do |method|
         send(method, "/auth/:provider/callback") do
-            env['omniauth.auth'] # => OmniAuth::AuthHash
+            env['omniauth.auth'].to_s # => OmniAuth::AuthHash
         end
     end
 
