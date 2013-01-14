@@ -73,7 +73,7 @@ class OAuthDemo < Sinatra::Base
                 user_doc = db.get userid
             rescue RestClient::ResourceNotFound
                 # If not, add it
-                user_doc = db.save_doc(User.new(userid).to_json)
+                user_doc = db.save_doc(User.new(userid))
             end
             
             session[:u] = Digest::SHA1.hexdigest("#{userid}#{ENV['USERID_SECRET']}")
