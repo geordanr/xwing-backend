@@ -1,4 +1,3 @@
-require 'digest'
 require 'time'
 
 require 'sinatra/base'
@@ -54,6 +53,14 @@ class OAuthDemo < Sinatra::Base
     helpers do
         def require_authentication()
             if session.has_key? :u
+                begin
+                    user_doc = settings.db.get session[:u]
+                rescue RestClient::ResourceNotFound
+                    session.delete :u
+                    halt 403, 'Invalid user; re-authenticate with OAuth'
+                end
+                env['xwing.user'] = User.fromDoc(user_doc)
+            else
                 halt 403, 'Authentication via OAuth required'
             end
         end
@@ -66,18 +73,17 @@ class OAuthDemo < Sinatra::Base
     # Support both GET and POST for callbacks
     %w(get post).each do |method|
         send(method, "/auth/:provider/callback") do
-            userid = "user_#{env['omniauth.auth']['provider']}-#{env['omniauth.auth']['uid']}"
+            user = User.new(env['omniauth.auth']['provider'], env['omniauth.auth']['uid'])
             # Check if user exists
-            db = settings.db
             begin
-                user_doc = db.get userid
+                user_doc = settings.db.get user['_id']
             rescue RestClient::ResourceNotFound
                 # If not, add it
-                user_doc = db.save_doc(User.new(userid))
+                user_doc = settings.db.save_doc(user)
             end
             
-            session[:u] = Digest::SHA1.hexdigest("#{userid}#{ENV['USERID_SECRET']}")
-            redirect to('/protected')
+            session[:u] = user_doc['_id']
+            redirect to('/whoami')
         end
     end
 
@@ -136,9 +142,15 @@ class OAuthDemo < Sinatra::Base
 end
 
 class User < Hash
-    def initialize(userid)
-        self['_id'] = userid
+    def initialize(provider, uid)
+        self['_id'] = "user-#{provider}-#{uid}"
         self['type'] = 'user'
+    end
+
+    def self.fromDoc(doc)
+        new_obj = self.new(nil, nil)
+        new_obj.update(doc)
+        self
     end
 end
 
@@ -150,5 +162,11 @@ class Squad < Hash
         if additional_data.instance_of? Hash
             self['additional_data'] = additional_data.to_hash
         end
+    end
+
+    def self.fromDoc(doc)
+        new_obj = self.new(nil, nil, nil)
+        new_obj.update(doc)
+        self
     end
 end
