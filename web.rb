@@ -68,7 +68,7 @@ class OAuthDemo < Sinatra::Base
         send(method, "/auth/:provider/callback") do
             userid = "user_#{env['omniauth.auth']['provider']}-#{env['omniauth.auth']['uid']}"
             # Check if user exists
-            db = settings.db
+            db = settings.get :db
             begin
                 user_doc = db.get userid
             rescue RestClient::ResourceNotFound
