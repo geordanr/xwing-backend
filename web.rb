@@ -42,7 +42,7 @@ class OAuthDemo < Sinatra::Base
         set :db, CouchRest.database(ENV['CLOUDANT_URL'])
     end
 
-    configure :dev do
+    configure :development do
         set :db, CouchRest.database(ENV['CLOUDANT_DEV_URL'])
         #File.open('dev_cloudant.url') do |f|
         #    set :db, CouchRest.database(f.read.strip)
