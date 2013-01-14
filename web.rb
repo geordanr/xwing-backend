@@ -137,14 +137,14 @@ end
 
 class User < Hash
     def initialize(userid)
-        self['id'] = "user_#{userid}"
+        self['_id'] = userid
         self['type'] = 'user'
     end
 end
 
 class Squad < Hash
     def initialize(serialized_str, name, additional_data)
-        self['id'] = "squad_#{settings.get(:uuid).generate}"
+        self['_id'] = "squad_#{settings.get(:uuid).generate}"
         self['type'] = 'squad'
         self['name'] = name
         if additional_data.instance_of? Hash
