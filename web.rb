@@ -82,7 +82,8 @@ class OAuthDemo < Sinatra::Base
                 user_doc = settings.db.save_doc(user)
             end
             
-            redirect '/ping'
+            logger.info env.to_s
+            "Authentication successful"
         end
     end
 
