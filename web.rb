@@ -52,10 +52,9 @@ class OAuthDemo < Sinatra::Base
 
     helpers do
         def require_authentication()
-            if env.has_key? 'omniauth.auth'
-                user = User.new(env['omniauth.auth']['provider'], env['omniauth.auth']['uid'])
+            if session.has_key? :u
                 begin
-                    user_doc = settings.db.get user['_id']
+                    user_doc = settings.db.get session[:u]
                 rescue RestClient::ResourceNotFound
                     halt 403, 'Invalid user; re-authenticate with OAuth'
                 end
@@ -82,10 +81,8 @@ class OAuthDemo < Sinatra::Base
                 user_doc = settings.db.save_doc(user)
             end
             
-            session.each do |k, v|
-                puts "#{k} => #{v}"
-            end
-            "Authentication successful"
+            session[:u] = user_doc['_id']
+            json :success => true
         end
     end
 
