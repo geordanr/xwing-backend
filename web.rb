@@ -90,6 +90,11 @@ class OAuthDemo < Sinatra::Base
         halt 403, 'Authentication failed'
     end
 
+    post '/auth/logout' do
+        session.delete :u
+        halt 403, 'Authentication failed'
+    end
+
     # App routes
 
     get '/' do
@@ -103,20 +108,62 @@ class OAuthDemo < Sinatra::Base
     end
 
     get '/squads/list' do
+        json settings.db.view('squads/list', { :key => env['xwing.user'].id })
     end
 
     get '/squads/listAll' do
+        json settings.db.view('squads/list')
     end
 
     put '/squads/new' do
+        name = params[:name].strip
+        # Name already in use by this user?
+        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user'].id, name ] }).empty?
+            new_squad = Squad.new(params[:serialized].strip, name, params[:additional_data])
+            begin
+                squad_doc = settings.db.save_doc(new_squad)
+                json :id => squad_doc['_id'], :success => true, :error => nil
+            rescue
+                json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
+            end
+        else
+            json :id => nil, :success => false, :error => 'You already have a squad with that name'
+        end
     end
 
     post '/squads/:id' do
-        id = params[:id]
+        id = params[:id].strip
+        begin
+            squad = Squad.fromDoc(settings.db.get(id))
+        rescue
+            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+        end
+        squad.update({
+            'name' => params[:name].strip,
+            'serialized' => params[:serialized].strip,
+            'additional_data' => params[:additional_data],
+        })
+        begin
+            settings.db.save_doc(squad)
+            json :id => squad.id, :success => true, :error => nil
+        rescue
+            json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
+        end
     end
 
     delete '/squads/:id' do
         id = params[:id]
+        begin
+            squad = Squad.fromDoc(settings.db.get(id))
+        rescue
+            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+        end
+        begin
+            squad.destroy
+            json :success => true, :error => nil
+        rescue
+            json :id => nil, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+        end
     end
 
     get '/ping' do
@@ -143,21 +190,31 @@ class User < Hash
         new_obj.update(doc)
         self
     end
+
+    def id
+        self['_id']
+    end
 end
 
 class Squad < Hash
-    def initialize(serialized_str, name, additional_data)
+    def initialize(user_id, serialized_str, name, additional_data)
         self['_id'] = "squad_#{settings.get(:uuid).generate}"
         self['type'] = 'squad'
+        self['serialized'] = serialized_str
         self['name'] = name
+        self['user_id'] = user_id
         if additional_data.instance_of? Hash
             self['additional_data'] = additional_data.to_hash
         end
     end
 
     def self.fromDoc(doc)
-        new_obj = self.new(nil, nil, nil)
+        new_obj = self.new(nil, nil, nil, nil)
         new_obj.update(doc)
         self
+    end
+
+    def id
+        self['_id']
     end
 end
