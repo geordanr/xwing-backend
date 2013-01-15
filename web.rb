@@ -52,11 +52,11 @@ class OAuthDemo < Sinatra::Base
 
     helpers do
         def require_authentication()
-            if session.has_key? :u
+            if env.has_key? 'omniauth.auth'
+                user = User.new(env['omniauth.auth']['provider'], env['omniauth.auth']['uid'])
                 begin
-                    user_doc = settings.db.get session[:u]
+                    user_doc = settings.db.get user['_id']
                 rescue RestClient::ResourceNotFound
-                    session.delete :u
                     halt 403, 'Invalid user; re-authenticate with OAuth'
                 end
                 env['xwing.user'] = User.fromDoc(user_doc)
@@ -82,18 +82,12 @@ class OAuthDemo < Sinatra::Base
                 user_doc = settings.db.save_doc(user)
             end
             
-            session[:u] = user_doc['_id']
-            json :success => true
+            redirect '/ping'
         end
     end
 
     get '/auth/failure' do
         halt 403, 'Authentication failed'
-    end
-
-    get '/auth/logout' do
-        session.delete :u
-        'You have been logged out.'
     end
 
     # App routes
@@ -133,11 +127,8 @@ class OAuthDemo < Sinatra::Base
     # Demo
 
     get '/protected' do
-        if session.has_key? :u
-            "It's a secret to everyone!"
-        else
-            redirect to('/')
-        end
+        require_authentication
+        "It's a secret to everyone!"
     end
 end
 
