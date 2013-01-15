@@ -120,8 +120,8 @@ class OAuthDemo < Sinatra::Base
             user_id, faction, name = row['key']
             out[faction].push({
                 :name => name,
-                :serialized => row['value']['serialized'],
-                :additional_data => row['value']['additional_data'],
+                :serialized => row['value']['serialized'] || NULL,
+                :additional_data => row['value']['additional_data'] || NULL,
             })
         end
         json out
@@ -136,8 +136,8 @@ class OAuthDemo < Sinatra::Base
             user_id, faction, name = row['key']
             out[faction].push({
                 :name => name,
-                :serialized => row['value']['serialized'],
-                :additional_data => row['value']['additional_data'],
+                :serialized => row['value']['serialized'] || NULL,
+                :additional_data => row['value']['additional_data'] || NULL,
             })
         end
         json out
