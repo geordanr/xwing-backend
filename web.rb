@@ -16,6 +16,9 @@ PROVIDERS = {
     :facebook => [ ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'] ],
 }
 
+# Need a newer sinatra-contrib to fix this
+NULL = 0.0 / 0.0
+
 class OAuthDemo < Sinatra::Base
     # Helpers
     helpers Sinatra::JSON
@@ -147,12 +150,12 @@ class OAuthDemo < Sinatra::Base
             new_squad = Squad.new(params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
-                json :id => squad_doc['_id'], :success => true, :error => nil
+                json :id => squad_doc['_id'], :success => true, :error => NULL
             rescue
-                json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
+                json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
             end
         else
-            json :id => nil, :success => false, :error => 'You already have a squad with that name'
+            json :id => NULL, :success => false, :error => 'You already have a squad with that name'
         end
     end
 
@@ -161,7 +164,7 @@ class OAuthDemo < Sinatra::Base
         begin
             squad = Squad.fromDoc(settings.db.get(id))
         rescue
-            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
         squad.update({
             'name' => params[:name].strip,
@@ -171,9 +174,9 @@ class OAuthDemo < Sinatra::Base
         })
         begin
             settings.db.save_doc(squad)
-            json :id => squad['_id'], :success => true, :error => nil
+            json :id => squad['_id'], :success => true, :error => NULL
         rescue
-            json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
+            json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
         end
     end
 
@@ -182,13 +185,13 @@ class OAuthDemo < Sinatra::Base
         begin
             squad = Squad.fromDoc(settings.db.get(id))
         rescue
-            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
         begin
             squad.destroy
-            json :success => true, :error => nil
+            json :success => true, :error => NULL
         rescue
-            json :id => nil, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+            json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
         end
     end
 
