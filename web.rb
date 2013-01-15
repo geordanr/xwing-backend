@@ -114,14 +114,12 @@ class OAuthDemo < Sinatra::Base
             'Galactic Empire' => [],
         }
         settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
-            puts "Row is: #{row.to_s}"
-            puts "Key is #{row['key'].to_s}"
-            #faction, name = row['key']
-            #out[faction].push({
-            #    :name => name,
-            #    :serialized => row['value']['serialized'],
-            #    :additional_data => row['value']['additional_data'],
-            #})
+            user_id, faction, name = row['key']
+            out[faction].push({
+                :name => name,
+                :serialized => row['value']['serialized'],
+                :additional_data => row['value']['additional_data'],
+            })
         end
         json out
     end
@@ -132,7 +130,7 @@ class OAuthDemo < Sinatra::Base
             'Galactic Empire' => [],
         }
         settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
-            faction, name = row['key']
+            user_id, faction, name = row['key']
             out[faction].push({
                 :name => name,
                 :serialized => row['value']['serialized'],
