@@ -208,6 +208,10 @@ class XWingSquadDatabase < Sinatra::Base
         require_authentication
         "It's a secret to everyone!"
     end
+
+    get '/haml' do
+        haml :auth_success
+    end
 end
 
 class User < Hash

@@ -2,9 +2,10 @@
 %html
   %head
     %title Authentication Successful
-    :coffee
-      window.parent.backend.authenticate () =>
+    :javascript
+      window.parent.backend.authenticate(function() {
         window.close()
+      });
   %body{:onload => "notify()"}
     %p
       Completing authentication...

@@ -78,5 +78,4 @@ DEPENDENCIES
   sinatra (= 1.3.0)
   sinatra-contrib
   thin
-  tilt
   uuid
