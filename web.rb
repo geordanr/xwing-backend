@@ -109,7 +109,7 @@ class XWingSquadDatabase < Sinatra::Base
     end
 
     get '/methods' do
-        json PROVIDERS.keys
+        json :methods => PROVIDERS.keys
     end
 
     # Unprotected; everyone can view the full list
