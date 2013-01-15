@@ -107,19 +107,44 @@ class OAuthDemo < Sinatra::Base
         json PROVIDERS.keys
     end
 
-    get '/squads/list' do
-        json settings.db.view('squads/list', { :key => env['xwing.user']['_id'] })
+    # Unprotected; everyone can view the full list
+    get '/all' do
+        out = {
+            'Rebel Alliance' => [],
+            'Galactic Empire' => [],
+        }
+        settings.db.view('squads/list')['rows'].each do |row|
+            faction, name = row['key']
+            out[faction].push({
+                :name => name,
+                :serialized => row['value']['serialized'],
+                :additional_data => row['value']['additional_data'],
+            })
+        end
+        json out
     end
 
-    get '/squads/listAll' do
-        json settings.db.view('squads/list')
+    get '/squads/list' do
+        out = {
+            'Rebel Alliance' => [],
+            'Galactic Empire' => [],
+        }
+        settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
+            faction, name = row['key']
+            out[faction].push({
+                :name => name,
+                :serialized => row['value']['serialized'],
+                :additional_data => row['value']['additional_data'],
+            })
+        end
+        json out
     end
 
     put '/squads/new' do
         name = params[:name].strip
         # Name already in use by this user?
         if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] }).empty?
-            new_squad = Squad.new(params[:serialized].strip, name, params[:additional_data])
+            new_squad = Squad.new(params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
                 json :id => squad_doc['_id'], :success => true, :error => nil
@@ -141,6 +166,7 @@ class OAuthDemo < Sinatra::Base
         squad.update({
             'name' => params[:name].strip,
             'serialized' => params[:serialized].strip,
+            'faction' => params[:factipon].strip,
             'additional_data' => params[:additional_data],
         })
         begin
@@ -193,19 +219,20 @@ class User < Hash
 end
 
 class Squad < Hash
-    def initialize(user_id, serialized_str, name, additional_data)
+    def initialize(user_id, serialized_str, name, faction, additional_data)
         self['_id'] = "squad_#{settings.get(:uuid).generate}"
         self['type'] = 'squad'
+        self['user_id'] = user_id
         self['serialized'] = serialized_str
         self['name'] = name
-        self['user_id'] = user_id
+        self['faction'] = faction
         if additional_data.instance_of? Hash
             self['additional_data'] = additional_data.to_hash
         end
     end
 
     def self.fromDoc(doc)
-        new_obj = self.new(nil, nil, nil, nil)
+        new_obj = self.new(nil, nil, nil, nil, nil)
         new_obj.update(doc)
         self
     end
