@@ -16,10 +16,12 @@ PROVIDERS = {
     :facebook => [ ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'] ],
 }
 
-# Need a newer sinatra-contrib to fix this
+# Need a newer sinatra-contrib to fix this; it doesn't encode nil correctly.
+# Apparently it doesn't encode NaN correctly either (instead it encodes it
+# as 'null'), so I guess I'll just use that.  Sigh.
 NULL = 0.0 / 0.0
 
-class OAuthDemo < Sinatra::Base
+class XWingSquadDatabase < Sinatra::Base
     # Helpers
     helpers Sinatra::JSON
 
@@ -85,7 +87,7 @@ class OAuthDemo < Sinatra::Base
             end
             
             session[:u] = user_doc['_id']
-            "Authentication successful"
+            haml :auth_success
         end
     end
 
