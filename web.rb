@@ -113,7 +113,7 @@ class OAuthDemo < Sinatra::Base
             'Rebel Alliance' => [],
             'Galactic Empire' => [],
         }
-        settings.db.view('squads/list')['rows'].each do |row|
+        settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
             faction, name = row['key']
             out[faction].push({
                 :name => name,
