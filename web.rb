@@ -116,12 +116,12 @@ class OAuthDemo < Sinatra::Base
         settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
             puts "Row is: #{row.to_s}"
             puts "Key is #{row['key'].to_s}"
-            faction, name = row['key']
-            out[faction].push({
-                :name => name,
-                :serialized => row['value']['serialized'],
-                :additional_data => row['value']['additional_data'],
-            })
+            #faction, name = row['key']
+            #out[faction].push({
+            #    :name => name,
+            #    :serialized => row['value']['serialized'],
+            #    :additional_data => row['value']['additional_data'],
+            #})
         end
         json out
     end
