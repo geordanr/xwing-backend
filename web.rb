@@ -82,7 +82,7 @@ class OAuthDemo < Sinatra::Base
                 user_doc = settings.db.save_doc(user)
             end
             
-            logger.info env.to_s
+            puts env.to_s
             "Authentication successful"
         end
     end
