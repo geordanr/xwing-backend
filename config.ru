@@ -1,2 +1,2 @@
 require './web.rb'
-run OAuthDemo
+run XWingSquadDatabase
