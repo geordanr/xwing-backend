@@ -82,7 +82,7 @@ class OAuthDemo < Sinatra::Base
             end
             
             session[:u] = user_doc['_id']
-            json :success => true
+            "Authentication successful"
         end
     end
 
