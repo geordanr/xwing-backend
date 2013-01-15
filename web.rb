@@ -52,10 +52,7 @@ class OAuthDemo < Sinatra::Base
 
     helpers do
         def require_authentication()
-            if env.has_key? 'xwing.user'
-                # Immediately from OAuth
-                nil
-            elsif session.has_key? :u
+            if session.has_key? :u
                 begin
                     user_doc = settings.db.get session[:u]
                 rescue RestClient::ResourceNotFound
@@ -66,7 +63,6 @@ class OAuthDemo < Sinatra::Base
             else
                 halt 403, 'Authentication via OAuth required'
             end
-            env['xwing.user']
         end
     end
 
@@ -87,8 +83,7 @@ class OAuthDemo < Sinatra::Base
             end
             
             session[:u] = user_doc['_id']
-            env['xwing.user'] = User.fromDoc(user_doc)
-            redirect to('/ping')
+            json :success => true
         end
     end
 
