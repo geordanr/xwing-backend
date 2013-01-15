@@ -82,7 +82,9 @@ class OAuthDemo < Sinatra::Base
                 user_doc = settings.db.save_doc(user)
             end
             
-            puts env.to_s
+            session.each do |k, v|
+                puts "#{k} => #{v}"
+            end
             "Authentication successful"
         end
     end
