@@ -129,7 +129,12 @@ class OAuthDemo < Sinatra::Base
             'Rebel Alliance' => [],
             'Galactic Empire' => [],
         }
-        settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
+        params = {
+            :reduce => false,
+            :startkey => [ env['xwing.user']['_id'] ],
+            :endkey => [ env['xwing.user']['_id'], {}, {} ]
+        }
+        settings.db.view('squads/list', params)['rows'].each do |row|
             faction, name = row['key']
             out[faction].push({
                 :name => name,
@@ -216,6 +221,10 @@ class User < Hash
         new_obj.update(doc)
         self
     end
+
+    def to_s
+        "#<User id=#{self['_id']}>"
+    end
 end
 
 class Squad < Hash
@@ -235,5 +244,9 @@ class Squad < Hash
         new_obj = self.new(nil, nil, nil, nil, nil)
         new_obj.update(doc)
         self
+    end
+
+    def to_s
+        "#<Squad user_id=#{self['_id']}, faction=#{self['faction']}, name=#{self['name']}>"
     end
 end
