@@ -108,7 +108,7 @@ class OAuthDemo < Sinatra::Base
     end
 
     get '/squads/list' do
-        json settings.db.view('squads/list', { :key => env['xwing.user'].id })
+        json settings.db.view('squads/list', { :key => env['xwing.user']['_id'] })
     end
 
     get '/squads/listAll' do
@@ -118,7 +118,7 @@ class OAuthDemo < Sinatra::Base
     put '/squads/new' do
         name = params[:name].strip
         # Name already in use by this user?
-        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user'].id, name ] }).empty?
+        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] }).empty?
             new_squad = Squad.new(params[:serialized].strip, name, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
@@ -145,7 +145,7 @@ class OAuthDemo < Sinatra::Base
         })
         begin
             settings.db.save_doc(squad)
-            json :id => squad.id, :success => true, :error => nil
+            json :id => squad['_id'], :success => true, :error => nil
         rescue
             json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
         end
@@ -190,10 +190,6 @@ class User < Hash
         new_obj.update(doc)
         self
     end
-
-    def id
-        self['_id']
-    end
 end
 
 class Squad < Hash
@@ -212,9 +208,5 @@ class Squad < Hash
         new_obj = self.new(nil, nil, nil, nil)
         new_obj.update(doc)
         self
-    end
-
-    def id
-        self['_id']
     end
 end
