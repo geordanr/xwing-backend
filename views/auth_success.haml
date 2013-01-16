@@ -3,9 +3,11 @@
   %head
     %title Authentication Successful
     :javascript
-      window.parent.backend.authenticate(function() {
-        window.close()
-      });
+      var notify = function () {
+        window.parent.backend.authenticate(function() {
+          window.close()
+        });
+      };
   %body{:onload => "notify()"}
     %p
       Completing authentication...
