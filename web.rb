@@ -2,6 +2,7 @@ require 'time'
 
 require 'sinatra/base'
 require 'sinatra/json'
+require 'rack/cors'
 require 'haml'
 require 'couchrest'
 require 'json'
@@ -27,6 +28,12 @@ class XWingSquadDatabase < Sinatra::Base
 
     # Middleware
 
+    use Rack::Cors do
+        allow do
+            origins '*'
+            resource '*', :credentials => true
+        end
+    end
     use Rack::Session::Cookie
     use OmniAuth::Builder do
         PROVIDERS.each do |provider_name, provider_args|
@@ -68,12 +75,6 @@ class XWingSquadDatabase < Sinatra::Base
                 halt 403, 'Authentication via OAuth required'
             end
         end
-    end
-
-    before do
-        headers \
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Credentials' => true
     end
 
     before '/squads/*' do
