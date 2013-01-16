@@ -62,7 +62,7 @@ Logs in using OAuth for given method.  Begins OAuth token exchange redirection d
 ### `GET /auth/METHOD/callback`
 Callback from successful OAuth.  Signals `window.parent` that authorization is complete.
 
-### `POST /auth/logout`
+### `GET /auth/logout`
 Invalidate user session.  Returns 200.
 
 ### `GET /squads/list`

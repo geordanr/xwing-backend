@@ -99,9 +99,9 @@ class XWingSquadDatabase < Sinatra::Base
         halt 403, 'Authentication failed'
     end
 
-    post '/auth/logout' do
+    get '/auth/logout' do
         session.delete :u
-        halt 403, 'Authentication failed'
+        halt 403, 'Logged out; reauthenticate with OAuth'
     end
 
     # App routes
