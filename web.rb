@@ -73,7 +73,7 @@ class XWingSquadDatabase < Sinatra::Base
     before do
         headers \
             'Access-Control-Allow-Origin' => '*',
-            'Allow-Access-Control-Credentials' => true
+            'Access-Control-Allow-Credentials' => true
     end
 
     before '/squads/*' do
