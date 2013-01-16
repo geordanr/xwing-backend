@@ -4,7 +4,7 @@
     %title Authentication Successful
     :javascript
       var notify = function () {
-        window.parent.postMessage({ command: 'close_this' }, '*');
+        window.opener.postMessage({ command: 'close_this' }, '*');
       };
   %body{:onload => "notify()"}
     %p
