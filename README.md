@@ -76,7 +76,7 @@ Save new squad.
 
 PUT data: `{ name: ..., serialized: ..., faction: ..., additional_data: {...} }`
 
-Returns `{ id: ..., success: true|f, error: ...alse }`
+Returns `{ id: ..., success: true|false, error: ... }`
 
 ### `POST /squads/ID`
 Update squad.

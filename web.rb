@@ -70,6 +70,10 @@ class XWingSquadDatabase < Sinatra::Base
         end
     end
 
+    before do
+        headers 'Access-Control-Allow-Origin' => '*'
+    end
+
     before '/squads/*' do
         require_authentication
     end
