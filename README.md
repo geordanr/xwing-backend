@@ -23,15 +23,12 @@ Deletes squad with given `id` from backend.
 
 When finished, calls `cb({ success: true|false })`.
 
-### `.list()`
-Lists all saved squads for this user.  Description is a summary of pilots, etc.
+### `.list(builder, all=false)`
+Lists all saved squads of given `builder.faction` for this user.  Description is a summary of pilots, etc.
 
-Returns `{ "Rebel Alliance": [ ... ], "Galactic Empire": [ ... ] }`.
+Displays modal of squads for user to select.
 
-Each item in the list is `{ name: ..., id: ..., points: ..., description: ..., additional_data: ... }`.
-
-### `.listAll()`
-As `list()` but for all squads in the system.
+If `all` is `true`, lists squads for everyone in the system.
 
 ### `.authenticate(cb)`
 Called by the login child window when OAuth authentication is complete.  Confirms authentication with the server and calls `cb` when done.  Sets internal authentication state.
@@ -68,6 +65,10 @@ Invalidate user session.  Returns 200.
 ### `GET /squads/list`
 Fetch list of squads for authenticated user.  This is what `list()` connects to.
 
+Returns `{ "Rebel Alliance": [ ... ], "Galactic Empire": [ ... ] }`.
+
+Each item in the list is `{ name: ..., id: ..., points: ..., description: ..., additional_data: ... }`.
+
 ### `GET /all`
 Fetch list of squads for all users.  This is what `list()` connects to.  Unprotected.
 
@@ -83,7 +84,7 @@ Update squad.
 
 POST data `{ name: ..., serialized: ..., faction: ..., additional_data: {...} }`
 
-Returns: `{ id: ..., success: true|false, error: ... }`.
+Returns: `{ id: ..., success: true|false, error: ... }`
 
 ### `DELETE /squads/ID`
 Delete squad.

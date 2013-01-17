@@ -30,7 +30,7 @@ class XWingSquadDatabase < Sinatra::Base
 
     use Rack::Cors do
         allow do
-            origins '*'
+            origins ENV['ALLOWED_ORIGINS'] || '*'
             resource '*', :credentials => true
         end
     end
@@ -175,17 +175,21 @@ class XWingSquadDatabase < Sinatra::Base
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
-        squad.update({
-            'name' => params[:name].strip,
-            'serialized' => params[:serialized].strip,
-            'faction' => params[:factipon].strip,
-            'additional_data' => params[:additional_data],
-        })
-        begin
-            settings.db.save_doc(squad)
-            json :id => squad['_id'], :success => true, :error => NULL
-        rescue
-            json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+        if squad.user_id != env['xwing.user']['_id']
+            json :id => NULL, :success => false, :error => "You don't own that squad"
+        else
+            squad.update({
+                'name' => params[:name].strip,
+                'serialized' => params[:serialized].strip,
+                'faction' => params[:factipon].strip,
+                'additional_data' => params[:additional_data],
+            })
+            begin
+                settings.db.save_doc(squad)
+                json :id => squad['_id'], :success => true, :error => NULL
+            rescue
+                json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+            end
         end
     end
 
@@ -196,11 +200,15 @@ class XWingSquadDatabase < Sinatra::Base
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
-        begin
-            squad.destroy
-            json :success => true, :error => NULL
-        rescue
-            json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+        if squad.user_id != env['xwing.user']['_id']
+            json :id => NULL, :success => false, :error => "You don't own that squad"
+        else
+            begin
+                squad.destroy
+                json :success => true, :error => NULL
+            rescue
+                json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+            end
         end
     end
 
