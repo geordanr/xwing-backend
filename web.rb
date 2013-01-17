@@ -30,8 +30,8 @@ class XWingSquadDatabase < Sinatra::Base
 
     use Rack::Cors do
         allow do
-            origins '*' # FIXME
-            resource '*', :credentials => true
+            origins ENV['ALLOWED_ORIGINS'] || '*'
+            resource '*', :credentials => true, :methods => [ :get, :post, :put, :delete ]
         end
     end
     use Rack::Session::Cookie
