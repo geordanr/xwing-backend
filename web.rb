@@ -29,8 +29,6 @@ class XWingSquadDatabase < Sinatra::Base
     # Config
 
     configure do
-        set :session_secret, ENV['SESSION_SECRET']
-        enable :method_override
         set :uuid, UUID.new
 
         # https://github.com/sinatra/sinatra/issues/518
@@ -50,7 +48,8 @@ class XWingSquadDatabase < Sinatra::Base
 
     # Middleware
 
-    use Rack::Session::Cookie
+    use Rack::MethodOverride
+    use Rack::Session::Cookie, :secret => ENV['SESSION_SECRET']
 
     use OmniAuth::Builder do
         PROVIDERS.each do |provider_name, provider_args|
