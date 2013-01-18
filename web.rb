@@ -26,6 +26,28 @@ class XWingSquadDatabase < Sinatra::Base
     # Helpers
     helpers Sinatra::JSON
 
+    # Config
+
+    configure do
+        set :session_secret, ENV['SESSION_SECRET']
+        enable :method_override
+        set :uuid, UUID.new
+
+        # https://github.com/sinatra/sinatra/issues/518
+        set :protection, :except => :json_csrf
+    end
+
+    configure :production do
+        set :db, CouchRest.database(ENV['CLOUDANT_URL'])
+    end
+
+    configure :development do
+        set :db, CouchRest.database(ENV['CLOUDANT_DEV_URL'])
+        #File.open('dev_cloudant.url') do |f|
+        #    set :db, CouchRest.database(f.read.strip)
+        #end
+    end
+
     # Middleware
 
     use Rack::Session::Cookie
@@ -43,28 +65,6 @@ class XWingSquadDatabase < Sinatra::Base
                 :methods => [ :get, :post, :put, :delete ],
                 :headers => :any
         end
-    end
-
-    # Config
-
-    configure do
-        set :session_secret, ENV['SESSION_SECRET']
-        set :method_override, true
-        set :uuid, UUID.new
-
-        # https://github.com/sinatra/sinatra/issues/518
-        set :protection, :except => :json_csrf
-    end
-
-    configure :production do
-        set :db, CouchRest.database(ENV['CLOUDANT_URL'])
-    end
-
-    configure :development do
-        set :db, CouchRest.database(ENV['CLOUDANT_DEV_URL'])
-        #File.open('dev_cloudant.url') do |f|
-        #    set :db, CouchRest.database(f.read.strip)
-        #end
     end
 
     # Auth stuff
