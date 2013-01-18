@@ -30,7 +30,6 @@ class XWingSquadDatabase < Sinatra::Base
 
     configure do
         enable :method_override
-        set :uuid, UUID.new
 
         # https://github.com/sinatra/sinatra/issues/518
         set :protection, :except => :json_csrf
@@ -255,7 +254,7 @@ end
 
 class Squad < Hash
     def initialize(user_id, serialized_str, name, faction, additional_data)
-        self['_id'] = "squad_#{settings.get(:uuid).generate}"
+        self['_id'] = "squad_#{UUID.generate}"
         self['type'] = 'squad'
         self['user_id'] = user_id
         self['serialized'] = serialized_str
