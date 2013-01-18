@@ -70,11 +70,13 @@ class XWingSquadDatabase < Sinatra::Base
                 begin
                     user_doc = settings.db.get session[:u]
                 rescue RestClient::ResourceNotFound
-                    halt 403, 'Invalid user; re-authenticate with OAuth'
+                    puts "Invalid user #{session[:u].inspect}"
+                    halt 401, 'Invalid user; re-authenticate with OAuth'
                 end
                 env['xwing.user'] = User.fromDoc(user_doc)
             else
-                halt 403, 'Authentication via OAuth required'
+                puts "No user id in session"
+                halt 401, 'Authentication via OAuth required'
             end
         end
     end
@@ -101,6 +103,7 @@ class XWingSquadDatabase < Sinatra::Base
     end
 
     get '/auth/failure' do
+        puts "Authentication failure"
         halt 403, 'Authentication failed'
     end
 
