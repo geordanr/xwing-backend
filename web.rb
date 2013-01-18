@@ -28,14 +28,14 @@ class XWingSquadDatabase < Sinatra::Base
 
     # Middleware
 
-    use Rack::Session::Cookie
-
     use Rack::Cors do
         allow do
             origins ENV['ALLOWED_ORIGINS']
             resource '*', :credentials => true, :methods => [ :get, :post, :put, :delete ], :headers => :any
         end
     end
+
+    use Rack::Session::Cookie
 
     use OmniAuth::Builder do
         PROVIDERS.each do |provider_name, provider_args|
