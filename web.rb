@@ -29,6 +29,7 @@ class XWingSquadDatabase < Sinatra::Base
     # Config
 
     configure do
+        enable :method_override
         set :uuid, UUID.new
 
         # https://github.com/sinatra/sinatra/issues/518
@@ -48,7 +49,6 @@ class XWingSquadDatabase < Sinatra::Base
 
     # Middleware
 
-    use Rack::MethodOverride
     use Rack::Session::Cookie, :secret => ENV['SESSION_SECRET']
 
     use OmniAuth::Builder do
@@ -162,7 +162,7 @@ class XWingSquadDatabase < Sinatra::Base
     put '/squads/new' do
         name = params[:name].strip
         # Name already in use by this user?
-        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] }).empty?
+        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
             new_squad = Squad.new(params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
