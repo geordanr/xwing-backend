@@ -162,7 +162,7 @@ class XWingSquadDatabase < Sinatra::Base
         name = params[:name].strip
         # Name already in use by this user?
         if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
-            new_squad = Squad.new(nil, params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
+            new_squad = Squad.new(env['xwing.user']['_id'], params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
                 json :id => squad_doc['_id'], :success => true, :error => NULL
