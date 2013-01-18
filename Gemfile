@@ -1,5 +1,5 @@
 source :rubygems
-gem 'sinatra', '1.3.0'
+gem 'sinatra', '>= 1.3.3'
 gem 'sinatra-contrib'
 gem 'thin'
 gem 'haml'

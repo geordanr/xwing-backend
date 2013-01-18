@@ -51,6 +51,9 @@ class XWingSquadDatabase < Sinatra::Base
         set :session_secret, ENV['SESSION_SECRET']
         set :method_override, true
         set :uuid, UUID.new
+
+        # https://github.com/sinatra/sinatra/issues/518
+        set :protection, :except => :json_csrf
     end
 
     configure :production do
@@ -157,7 +160,7 @@ class XWingSquadDatabase < Sinatra::Base
         json out
     end
 
-    post '/squads/new' do
+    put '/squads/new' do
         name = params[:name].strip
         # Name already in use by this user?
         if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] }).empty?
