@@ -39,7 +39,9 @@ class XWingSquadDatabase < Sinatra::Base
     use Rack::Cors do
         allow do
             origins ENV['ALLOWED_ORIGINS']
-            resource '*', :credentials => true, :methods => [ :get, :post, :put, :delete ], :headers => :any
+            resource '*', :credentials => true,
+                :methods => [ :get, :post, :put, :delete ],
+                :headers => :any
         end
     end
 
@@ -70,19 +72,14 @@ class XWingSquadDatabase < Sinatra::Base
                 begin
                     user_doc = settings.db.get session[:u]
                 rescue RestClient::ResourceNotFound
-                    puts "Invalid user #{session[:u].inspect}"
+                    puts "User #{session[:u].inspect} not found"
                     halt 401, 'Invalid user; re-authenticate with OAuth'
                 end
                 env['xwing.user'] = User.fromDoc(user_doc)
             else
-                puts "No user id in session"
                 halt 401, 'Authentication via OAuth required'
             end
         end
-    end
-
-    before do
-        puts "Logging test"
     end
 
     before '/squads/*' do
@@ -107,7 +104,6 @@ class XWingSquadDatabase < Sinatra::Base
     end
 
     get '/auth/failure' do
-        puts "Authentication failure"
         halt 403, 'Authentication failed'
     end
 
@@ -161,7 +157,7 @@ class XWingSquadDatabase < Sinatra::Base
         json out
     end
 
-    put '/squads/new' do
+    post '/squads/new' do
         name = params[:name].strip
         # Name already in use by this user?
         if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] }).empty?
