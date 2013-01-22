@@ -150,6 +150,7 @@ class XWingSquadDatabase < Sinatra::Base
         settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
             user_id, faction, name = row['key']
             out[faction].push({
+                :id => row['id'],
                 :name => name,
                 :serialized => row['value']['serialized'] || NULL,
                 :additional_data => row['value']['additional_data'] || NULL,
