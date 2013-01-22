@@ -189,7 +189,7 @@ class XWingSquadDatabase < Sinatra::Base
             squad.update({
                 'name' => params[:name].strip,
                 'serialized' => params[:serialized].strip,
-                'faction' => params[:factipon].strip,
+                'faction' => params[:faction].strip,
                 'additional_data' => params[:additional_data],
             })
             begin
