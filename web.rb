@@ -134,6 +134,7 @@ class XWingSquadDatabase < Sinatra::Base
         settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
             user_id, faction, name = row['key']
             out[faction].push({
+                :id => row['id'],
                 :name => name,
                 :serialized => row['value']['serialized'] || NULL,
                 :additional_data => row['value']['additional_data'] || NULL,
@@ -182,7 +183,7 @@ class XWingSquadDatabase < Sinatra::Base
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
-        if squad.user_id != env['xwing.user']['_id']
+        if squad['user_id'] != env['xwing.user']['_id']
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             squad.update({
@@ -207,7 +208,7 @@ class XWingSquadDatabase < Sinatra::Base
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
-        if squad.user_id != env['xwing.user']['_id']
+        if squad['user_id'] != env['xwing.user']['_id']
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             begin
