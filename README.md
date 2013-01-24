@@ -86,6 +86,13 @@ POST data `{ name: ..., serialized: ..., faction: ..., additional_data: {...} }`
 
 Returns: `{ id: ..., success: true|false, error: ... }`
 
+### `POST /squads/namecheck`
+Check if a squad name is available for use by user.
+
+POST data `{ name: ... }`
+
+Returns: `{ available: true|false }`
+
 ### `DELETE /squads/ID`
 Delete squad.
 

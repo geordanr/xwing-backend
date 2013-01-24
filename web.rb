@@ -81,6 +81,10 @@ class XWingSquadDatabase < Sinatra::Base
                 halt 401, 'Authentication via OAuth required'
             end
         end
+
+        def name_in_use_by_user?(name)
+            settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
+        end
     end
 
     before '/squads/*' do
@@ -162,8 +166,7 @@ class XWingSquadDatabase < Sinatra::Base
 
     put '/squads/new' do
         name = params[:name].strip
-        # Name already in use by this user?
-        if settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
+        if name_in_use_by_user? name
             new_squad = Squad.new(env['xwing.user']['_id'], params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 squad_doc = settings.db.save_doc(new_squad)
@@ -186,17 +189,22 @@ class XWingSquadDatabase < Sinatra::Base
         if squad['user_id'] != env['xwing.user']['_id']
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
-            squad.update({
-                'name' => params[:name].strip,
-                'serialized' => params[:serialized].strip,
-                'faction' => params[:faction].strip,
-                'additional_data' => params[:additional_data],
-            })
-            begin
-                settings.db.save_doc(squad)
-                json :id => squad['_id'], :success => true, :error => NULL
-            rescue
-                json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+            name = params[:name].strip
+            if name_in_use_by_user? name
+                squad.update({
+                    'name' => name,
+                    'serialized' => params[:serialized].strip,
+                    'faction' => params[:faction].strip,
+                    'additional_data' => params[:additional_data],
+                })
+                begin
+                    settings.db.save_doc(squad)
+                    json :id => squad['_id'], :success => true, :error => NULL
+                rescue
+                    json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+                end
+            else
+                json :id => NULL, :success => false, :error => 'You already have a squad with that name'
             end
         end
     end
@@ -218,6 +226,11 @@ class XWingSquadDatabase < Sinatra::Base
                 json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
             end
         end
+    end
+
+    post '/squads/namecheck' do
+        name = params[:name].strip
+        json :available => name_in_use_by_user?(name)
     end
 
     get '/ping' do
