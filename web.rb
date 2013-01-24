@@ -179,6 +179,25 @@ class XWingSquadDatabase < Sinatra::Base
         end
     end
 
+    delete '/squads/:id' do
+        id = params[:id]
+        begin
+            squad = Squad.fromDoc(settings.db.get(id))
+        rescue
+            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+        end
+        if squad['user_id'] != env['xwing.user']['_id']
+            json :id => NULL, :success => false, :error => "You don't own that squad"
+        else
+            begin
+                squad.destroy
+                json :success => true, :error => NULL
+            rescue
+                json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+            end
+        end
+    end
+
     post '/squads/namecheck' do
         name = params[:name].strip
         json :available => name_in_use_by_user?(name)
@@ -210,25 +229,6 @@ class XWingSquadDatabase < Sinatra::Base
                 end
             else
                 json :id => NULL, :success => false, :error => 'You already have a squad with that name'
-            end
-        end
-    end
-
-    delete '/squads/:id' do
-        id = params[:id]
-        begin
-            squad = Squad.fromDoc(settings.db.get(id))
-        rescue
-            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
-        end
-        if squad['user_id'] != env['xwing.user']['_id']
-            json :id => NULL, :success => false, :error => "You don't own that squad"
-        else
-            begin
-                squad.destroy
-                json :success => true, :error => NULL
-            rescue
-                json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
             end
         end
     end
