@@ -186,7 +186,7 @@ class XWingSquadDatabase < Sinatra::Base
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
-        if squad['user_id'] != env['xwing.user']['_id']
+        if squad_doc['user_id'] != env['xwing.user']['_id']
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             begin
