@@ -182,7 +182,7 @@ class XWingSquadDatabase < Sinatra::Base
     delete '/squads/:id' do
         id = params[:id]
         begin
-            squad = Squad.fromDoc(settings.db.get(id))
+            squad_doc = settings.db.get(id)
         rescue
             json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
@@ -190,7 +190,7 @@ class XWingSquadDatabase < Sinatra::Base
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             begin
-                squad.destroy
+                squad_doc.destroy
                 json :success => true, :error => NULL
             rescue
                 json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
