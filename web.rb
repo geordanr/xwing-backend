@@ -179,6 +179,11 @@ class XWingSquadDatabase < Sinatra::Base
         end
     end
 
+    post '/squads/namecheck' do
+        name = params[:name].strip
+        json :available => name_in_use_by_user?(name)
+    end
+
     post '/squads/:id' do
         id = params[:id].strip
         begin
@@ -226,11 +231,6 @@ class XWingSquadDatabase < Sinatra::Base
                 json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
             end
         end
-    end
-
-    post '/squads/namecheck' do
-        name = params[:name].strip
-        json :available => name_in_use_by_user?(name)
     end
 
     get '/ping' do
