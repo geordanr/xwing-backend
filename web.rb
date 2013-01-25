@@ -98,12 +98,13 @@ class XWingSquadDatabase < Sinatra::Base
             # Check if user exists
             begin
                 user_doc = settings.db.get user['_id']
+                session[:u] = user_doc['_id']
             rescue RestClient::ResourceNotFound
                 # If not, add it
-                user_doc = settings.db.save_doc(user)
+                res = settings.db.save_doc(user)
+                session[:u] = res['id']
             end
             
-            session[:u] = user_doc['_id']
             haml :auth_success
         end
     end
@@ -169,8 +170,8 @@ class XWingSquadDatabase < Sinatra::Base
         if name_in_use_by_user? name
             new_squad = Squad.new(env['xwing.user']['_id'], params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
-                squad_doc = settings.db.save_doc(new_squad)
-                json :id => squad_doc['_id'], :success => true, :error => NULL
+                res = settings.db.save_doc(new_squad)
+                json :id => res['id'], :success => true, :error => NULL
             rescue
                 json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
             end
