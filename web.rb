@@ -1,7 +1,6 @@
 require 'time'
 
 require 'sinatra/base'
-require 'sinatra/json'
 require 'rack/cors'
 require 'haml'
 require 'couchrest'
@@ -17,15 +16,7 @@ PROVIDERS = {
     :facebook => [ ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'] ],
 }
 
-# Need a newer sinatra-contrib to fix this; it doesn't encode nil correctly.
-# Apparently it doesn't encode NaN correctly either (instead it encodes it
-# as 'null'), so I guess I'll just use that.  Sigh.
-NULL = 0.0 / 0.0
-
 class XWingSquadDatabase < Sinatra::Base
-    # Helpers
-    helpers Sinatra::JSON
-
     # Config
 
     configure do
@@ -85,6 +76,15 @@ class XWingSquadDatabase < Sinatra::Base
         def name_is_available?(name)
             settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
         end
+
+        def json(data)
+            content_type :json
+            if data.instance_of? Hash
+                data.to_json
+            else
+                { :data => data }.to_json
+            end
+        end
     end
 
     before '/squads/*' do
@@ -141,8 +141,8 @@ class XWingSquadDatabase < Sinatra::Base
             out[faction].push({
                 :id => row['id'],
                 :name => name,
-                :serialized => row['value']['serialized'] || NULL,
-                :additional_data => row['value']['additional_data'] || NULL,
+                :serialized => row['value']['serialized'] || nil,
+                :additional_data => row['value']['additional_data'] || nil,
             })
         end
         json out
@@ -158,8 +158,8 @@ class XWingSquadDatabase < Sinatra::Base
             out[faction].push({
                 :id => row['id'],
                 :name => name,
-                :serialized => row['value']['serialized'] || NULL,
-                :additional_data => row['value']['additional_data'] || NULL,
+                :serialized => row['value']['serialized'] || nil,
+                :additional_data => row['value']['additional_data'] || nil,
             })
         end
         json out
@@ -171,12 +171,12 @@ class XWingSquadDatabase < Sinatra::Base
             new_squad = Squad.new(env['xwing.user']['_id'], params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 res = settings.db.save_doc(new_squad)
-                json :id => res['id'], :success => true, :error => NULL
+                json :id => res['id'], :success => true, :error => nil
             rescue
-                json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+                json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
             end
         else
-            json :id => NULL, :success => false, :error => 'You already have a squad with that name'
+            json :id => nil, :success => false, :error => 'You already have a squad with that name'
         end
     end
 
@@ -185,16 +185,16 @@ class XWingSquadDatabase < Sinatra::Base
         begin
             squad_doc = settings.db.get(id)
         rescue
-            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
         if squad_doc['user_id'] != env['xwing.user']['_id']
-            json :id => NULL, :success => false, :error => "You don't own that squad"
+            json :id => nil, :success => false, :error => "You don't own that squad"
         else
             begin
                 squad_doc.destroy
-                json :success => true, :error => NULL
+                json :success => true, :error => nil
             rescue
-                json :id => NULL, :success => false, :error => 'Something bad happened deleting that squad, try again later'
+                json :id => nil, :success => false, :error => 'Something bad happened deleting that squad, try again later'
             end
         end
     end
@@ -209,14 +209,14 @@ class XWingSquadDatabase < Sinatra::Base
         begin
             squad = Squad.fromDoc(settings.db.get(id))
         rescue
-            json :id => NULL, :success => false, :error => 'Something bad happened fetching that squad, try again later'
+            json :id => nil, :success => false, :error => 'Something bad happened fetching that squad, try again later'
         end
         if squad['user_id'] != env['xwing.user']['_id']
-            json :id => NULL, :success => false, :error => "You don't own that squad"
+            json :id => nil, :success => false, :error => "You don't own that squad"
         else
             name = params[:name].strip
             if name != squad['name'] and not name_is_available? name
-                json :id => NULL, :success => false, :error => 'You already have a squad with that name'
+                json :id => nil, :success => false, :error => 'You already have a squad with that name'
             else
                 squad.update({
                     'name' => name,
@@ -226,9 +226,9 @@ class XWingSquadDatabase < Sinatra::Base
                 })
                 begin
                     settings.db.save_doc(squad)
-                    json :id => squad['_id'], :success => true, :error => NULL
+                    json :id => squad['_id'], :success => true, :error => nil
                 rescue
-                    json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
+                    json :id => nil, :success => false, :error => 'Something bad happened saving that squad, try again later'
                 end
             end
         end
