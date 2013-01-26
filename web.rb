@@ -115,7 +115,7 @@ class XWingSquadDatabase < Sinatra::Base
 
     get '/auth/logout' do
         session.delete :u
-        'Logged out; reauthenticate with OAuth'
+        json :message => 'Logged out; reauthenticate with OAuth'
     end
 
     # App routes
