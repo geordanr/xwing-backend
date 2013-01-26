@@ -215,7 +215,7 @@ class XWingSquadDatabase < Sinatra::Base
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             name = params[:name].strip
-            if name != squad[:name] and not name_is_available? name
+            if name != squad['name'] and not name_is_available? name
                 json :id => NULL, :success => false, :error => 'You already have a squad with that name'
             else
                 squad.update({
