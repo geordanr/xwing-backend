@@ -82,7 +82,7 @@ class XWingSquadDatabase < Sinatra::Base
             end
         end
 
-        def name_in_use_by_user?(name)
+        def name_is_available?(name)
             settings.db.view('squads/byUserName', { :key => [ env['xwing.user']['_id'], name ] })['rows'].empty?
         end
     end
@@ -167,7 +167,7 @@ class XWingSquadDatabase < Sinatra::Base
 
     put '/squads/new' do
         name = params[:name].strip
-        if name_in_use_by_user? name
+        if name_is_available? name
             new_squad = Squad.new(env['xwing.user']['_id'], params[:serialized].strip, name, params[:faction].strip, params[:additional_data])
             begin
                 res = settings.db.save_doc(new_squad)
@@ -201,7 +201,7 @@ class XWingSquadDatabase < Sinatra::Base
 
     post '/squads/namecheck' do
         name = params[:name].strip
-        json :available => name_in_use_by_user?(name)
+        json :available => name_is_available?(name)
     end
 
     post '/squads/:id' do
@@ -215,7 +215,9 @@ class XWingSquadDatabase < Sinatra::Base
             json :id => NULL, :success => false, :error => "You don't own that squad"
         else
             name = params[:name].strip
-            if name_in_use_by_user? name
+            if name != squad[:name] and not name_is_available? name
+                json :id => NULL, :success => false, :error => 'You already have a squad with that name'
+            else
                 squad.update({
                     'name' => name,
                     'serialized' => params[:serialized].strip,
@@ -228,8 +230,6 @@ class XWingSquadDatabase < Sinatra::Base
                 rescue
                     json :id => NULL, :success => false, :error => 'Something bad happened saving that squad, try again later'
                 end
-            else
-                json :id => NULL, :success => false, :error => 'You already have a squad with that name'
             end
         end
     end
