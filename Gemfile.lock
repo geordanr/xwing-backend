@@ -41,6 +41,9 @@ GEM
     omniauth-oauth2 (1.1.1)
       oauth2 (~> 0.8.0)
       omniauth (~> 1.0)
+    omniauth-twitter (0.0.14)
+      multi_json (~> 1.3)
+      omniauth-oauth (~> 1.0)
     omniauth-yahoo (0.0.4)
       omniauth-oauth (~> 1.0)
     rack (1.4.4)
@@ -73,6 +76,7 @@ DEPENDENCIES
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
+  omniauth-twitter
   omniauth-yahoo
   rack-cors
   sinatra (>= 1.3.3)
