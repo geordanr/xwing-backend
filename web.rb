@@ -13,7 +13,8 @@ require 'omniauth-facebook'
 
 PROVIDERS = {
     :google_oauth2 => [ ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {access_type: 'online', approval_prompt: ''} ],
-    :facebook => [ ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'] ],
+    #:facebook => [ ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'] ],
+    :yahoo => [ ENV['YAHOO_KEY'], ENV['YAHOO_SECRET'] ],
 }
 
 class XWingSquadDatabase < Sinatra::Base
