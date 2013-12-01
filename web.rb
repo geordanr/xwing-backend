@@ -18,6 +18,14 @@ PROVIDERS = {
     :twitter => [ ENV['TWITTER_KEY'], ENV['TWITTER_SECRET'] ],
 }
 
+VALID_SETTINGS = [
+    'language',
+]
+
+INTERESTING_HEADERS = [
+    'HTTP_ACCEPT_LANGUAGE',
+]
+
 class XWingSquadDatabase < Sinatra::Base
     # Config
 
@@ -33,10 +41,13 @@ class XWingSquadDatabase < Sinatra::Base
     end
 
     configure :development do
-        set :db, CouchRest.database(ENV['CLOUDANT_DEV_URL'])
-        #File.open('dev_cloudant.url') do |f|
-        #    set :db, CouchRest.database(f.read.strip)
-        #end
+        begin
+            File.open('dev_cloudant.url') do |f|
+                set :db, CouchRest.database(f.read.strip)
+            end
+        rescue
+            set :db, CouchRest.database(ENV['CLOUDANT_DEV_URL'])
+        end
     end
 
     # Middleware
@@ -124,6 +135,42 @@ class XWingSquadDatabase < Sinatra::Base
 
     get '/' do
         json :welcome => 'Yet Another X-Wing Database Backend'
+    end
+
+    get '/headers' do
+        data = {}
+        INTERESTING_HEADERS.each do |header|
+            data[header] = request.env[header]
+        end
+        json :headers => data
+    end
+
+    get '/settings' do
+        session[:settings] = {} if session[:settings].nil?
+        settings = session[:settings]
+        json :settings => settings
+    end
+
+    put '/settings' do
+        session[:settings] = {} if session[:settings].nil?
+        settings = session[:settings]
+        settings_set = {}
+        params.each_pair do |setting, value|
+            if VALID_SETTINGS.member? setting
+                settings[setting] = settings_set[setting] = value
+            end
+        end
+        json :set => settings_set
+    end
+
+    delete '/settings/:setting' do
+        setting = params[:setting]
+        if VALID_SETTINGS.member? setting
+            session[:settings] = {} if session[:settings].nil?
+            settings = session[:settings]
+            settings.delete setting if settings.has_key? setting
+        end
+        json :deleted => setting
     end
 
     get '/methods' do
