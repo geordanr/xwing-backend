@@ -182,6 +182,7 @@ class XWingSquadDatabase < Sinatra::Base
         out = {
             'Rebel Alliance' => [],
             'Galactic Empire' => [],
+            'Scum and Villainy' => [],
         }
         settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
             user_id, faction, name = row['key']
@@ -199,6 +200,7 @@ class XWingSquadDatabase < Sinatra::Base
         out = {
             'Rebel Alliance' => [],
             'Galactic Empire' => [],
+            'Scum and Villainy' => [],
         }
         settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
             user_id, faction, name = row['key']
