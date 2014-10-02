@@ -315,7 +315,7 @@ class XWingSquadDatabase < Sinatra::Base
         require_authentication
 
         collection = get_collection
-        collection['expansions'] = params['expansions']
+        collection['expansions'] = params[:expansions]
         begin
             settings.db.save_doc(collection)
             json :success => true, :error => nil
