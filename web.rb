@@ -103,13 +103,14 @@ class XWingSquadDatabase < Sinatra::Base
             collection = Collection.new(env['xwing.user']['_id'], {})
 
             begin
-                settings.db.get collection['_id']
+                collection_doc = settings.db.get(collection['_id'])
             rescue RestClient::ResourceNotFound
                 # If no collection already exists for the logged in user, create a new empty one.
-                settings.db.save_doc(collection)
+                res = settings.db.save_doc(collection)
+                collection_doc = settings.db.get(res['id'])
             end
 
-            collection
+            Collection.fromDoc(collection_doc)
         end
     end
 
