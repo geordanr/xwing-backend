@@ -315,9 +315,13 @@ class XWingSquadDatabase < Sinatra::Base
         require_authentication
 
         collection = get_collection
+        puts "Got collection: #{collection.inspect}"
         collection['expansions'] = params[:expansions]
+        puts "POST params: #{params.inspect}"
         begin
-            settings.db.save_doc(collection)
+            puts "Saving collection: #{collection.inspect}"
+            res = settings.db.save_doc(collection)
+            puts "Result from save: #{res}"
             json :success => true, :error => nil
         rescue
             json :success => false, :error => 'Something bad happened saving the collection, try again later'
