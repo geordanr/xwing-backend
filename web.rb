@@ -98,6 +98,19 @@ class XWingSquadDatabase < Sinatra::Base
                 { :data => data }.to_json
             end
         end
+
+        def get_collection()
+            collection = Collection.new(env['xwing.user']['_id'], {})
+
+            begin
+                settings.db.get collection['_id']
+            rescue RestClient::ResourceNotFound
+                # If no collection already exists for the logged in user, create a new empty one.
+                settings.db.save_doc(collection)
+            end
+
+            collection
+        end
     end
 
     before '/squads/*' do
@@ -117,7 +130,7 @@ class XWingSquadDatabase < Sinatra::Base
                 res = settings.db.save_doc(user)
                 session[:u] = res['id']
             end
-            
+
             haml :auth_success
         end
     end
@@ -288,6 +301,29 @@ class XWingSquadDatabase < Sinatra::Base
         json :success => true
     end
 
+    get '/collection' do
+        require_authentication
+
+        collection = get_collection
+
+        json :collection => {
+            'expansions' => collection['expansions']
+        }
+    end
+
+    post '/collection' do
+        require_authentication
+
+        collection = get_collection
+        collection['expansions'] = params['expansions']
+        begin
+            settings.db.save_doc(collection)
+            json :success => true, :error => nil
+        rescue
+            json :success => false, :error => 'Something bad happened saving the collection, try again later'
+        end
+    end
+
     # Demo
 
     get '/protected' do
@@ -338,5 +374,24 @@ class Squad < Hash
 
     def to_s
         "#<Squad user_id=#{self['_id']}, faction=#{self['faction']}, name=#{self['name']}>"
+    end
+end
+
+class Collection < Hash
+    def initialize(user_id, expansions)
+        self['_id'] = "collection_#{user_id}"
+        self['type'] = 'collection'
+        self['user_id'] = user_id
+        self['expansions'] = expansions
+    end
+
+    def self.fromDoc(doc)
+        new_obj = self.new(nil, nil)
+        new_obj.update(doc)
+        new_obj
+    end
+
+    def to_s
+        "#<Collection id=#{self['_id']}, user_id=#{self['user_id']}, expansions=#{self['expansions']}>"
     end
 end
