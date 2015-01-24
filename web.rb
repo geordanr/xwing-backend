@@ -20,6 +20,7 @@ PROVIDERS = {
 
 VALID_SETTINGS = [
     'language',
+    'hugeShipMovedWarningSeen',
 ]
 
 INTERESTING_HEADERS = [
@@ -199,7 +200,7 @@ class XWingSquadDatabase < Sinatra::Base
             'Scum and Villainy' => [],
         }
         settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
-            user_id, faction, name = row['key']
+            _, faction, name = row['key']
             out[faction].push({
                 :id => row['id'],
                 :name => name,
@@ -217,7 +218,7 @@ class XWingSquadDatabase < Sinatra::Base
             'Scum and Villainy' => [],
         }
         settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
-            user_id, faction, name = row['key']
+            _, faction, name = row['key']
             out[faction].push({
                 :id => row['id'],
                 :name => name,
@@ -318,7 +319,7 @@ class XWingSquadDatabase < Sinatra::Base
         collection = get_collection
         collection['expansions'] = params[:expansions]
         begin
-            res = settings.db.save_doc(collection)
+            _ = settings.db.save_doc(collection)
             json :success => true, :error => nil
         rescue
             json :success => false, :error => 'Something bad happened saving the collection, try again later'
