@@ -101,7 +101,7 @@ class XWingSquadDatabase < Sinatra::Base
         end
 
         def get_collection()
-            collection = Collection.new(env['xwing.user']['_id'], {})
+            collection = Collection.new(env['xwing.user']['_id'], {}, {})
 
             begin
                 collection_doc = settings.db.get(collection['_id'])
@@ -309,7 +309,8 @@ class XWingSquadDatabase < Sinatra::Base
         collection = get_collection
 
         json :collection => {
-            'expansions' => collection['expansions']
+            'expansions' => collection['expansions'],
+            'singletons' => collection['singletons']
         }
     end
 
@@ -318,6 +319,7 @@ class XWingSquadDatabase < Sinatra::Base
 
         collection = get_collection
         collection['expansions'] = params[:expansions]
+        collection['singletons'] = params[:singletons]
         begin
             _ = settings.db.save_doc(collection)
             json :success => true, :error => nil
@@ -380,20 +382,21 @@ class Squad < Hash
 end
 
 class Collection < Hash
-    def initialize(user_id, expansions)
+    def initialize(user_id, expansions, singletons)
         self['_id'] = "collection_#{user_id}"
         self['type'] = 'collection'
         self['user_id'] = user_id
         self['expansions'] = expansions
+        self['singletons'] = singletons
     end
 
     def self.fromDoc(doc)
-        new_obj = self.new(nil, nil)
+        new_obj = self.new(nil, nil, nil)
         new_obj.update(doc)
         new_obj
     end
 
     def to_s
-        "#<Collection id=#{self['_id']}, user_id=#{self['user_id']}, expansions=#{self['expansions']}>"
+        "#<Collection id=#{self['_id']}, user_id=#{self['user_id']}, expansions=#{self['expansions']}, singletons=#{self['singletons']}>"
     end
 end
