@@ -77,7 +77,7 @@ class XWingSquadDatabase < Sinatra::Base
             if session.has_key? :u
                 begin
                     user_doc = settings.db.get session[:u]
-                rescue RestClient::ResourceNotFound
+                rescue CouchRest::NotFound
                     puts "User #{session[:u].inspect} not found"
                     halt 401, 'Invalid user; re-authenticate with OAuth'
                 end
@@ -105,7 +105,7 @@ class XWingSquadDatabase < Sinatra::Base
 
             begin
                 collection_doc = settings.db.get(collection['_id'])
-            rescue RestClient::ResourceNotFound
+            rescue CouchRest::NotFound
                 # If no collection already exists for the logged in user, create a new empty one.
                 res = settings.db.save_doc(collection)
                 collection_doc = settings.db.get(res['id'])
@@ -127,7 +127,7 @@ class XWingSquadDatabase < Sinatra::Base
             begin
                 user_doc = settings.db.get user['_id']
                 session[:u] = user_doc['_id']
-            rescue RestClient::ResourceNotFound
+            rescue CouchRest::NotFound
                 # If not, add it
                 res = settings.db.save_doc(user)
                 session[:u] = res['id']
