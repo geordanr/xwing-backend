@@ -127,7 +127,7 @@ class XWingSquadDatabase < Sinatra::Base
             begin
                 user_doc = settings.db.get user['_id']
                 session[:u] = user_doc['_id']
-            rescue CouchRest::NotFound
+            rescue
                 # If not, add it
                 res = settings.db.save_doc(user)
                 session[:u] = res['id']
