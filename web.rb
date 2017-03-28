@@ -392,7 +392,7 @@ class Collection < Hash
 
     def self.fromDoc(doc)
         new_obj = self.new(nil, nil, nil)
-        new_obj.update(doc)
+        new_obj.update(doc || {})
         new_obj
     end
 
