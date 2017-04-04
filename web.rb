@@ -77,9 +77,12 @@ class XWingSquadDatabase < Sinatra::Base
             if session.has_key? :u
                 begin
                     user_doc = settings.db.get session[:u]
-                rescue CouchRest::NotFound
-                    puts "User #{session[:u].inspect} not found"
-                    halt 401, 'Invalid user; re-authenticate with OAuth'
+                    if user_doc.nil?
+                        puts "User #{session[:u].inspect} not found"
+                        halt 401, 'Invalid user; re-authenticate with OAuth'
+                    end
+                rescue => e
+                    puts "Could not get user doc: #{e}"
                 end
                 env['xwing.user'] = User.fromDoc(user_doc)
             else
@@ -105,10 +108,14 @@ class XWingSquadDatabase < Sinatra::Base
 
             begin
                 collection_doc = settings.db.get(collection['_id'])
-            rescue CouchRest::NotFound
-                # If no collection already exists for the logged in user, create a new empty one.
-                res = settings.db.save_doc(collection)
-                collection_doc = settings.db.get(res['id'])
+                if collection_doc.nil?
+                    # If no collection already exists for the logged in user, create a new empty one.
+                    res = settings.db.save_doc(collection)
+                    collection_doc = settings.db.get(res['id'])
+                end
+            rescue => e
+                puts "Error getting collection for user #{env['xwing.user']['_id']}: #{e}"
+                halt 500
             end
 
             Collection.fromDoc(collection_doc)
@@ -323,8 +330,9 @@ class XWingSquadDatabase < Sinatra::Base
         begin
             _ = settings.db.save_doc(collection)
             json :success => true, :error => nil
-        rescue
-            json :success => false, :error => 'Something bad happened saving the collection, try again later'
+        rescue => e
+            puts "Error saving collection for user #{env['xwing.user']['_id']}: #{e}"
+            halt 500
         end
     end
 
@@ -392,7 +400,7 @@ class Collection < Hash
 
     def self.fromDoc(doc)
         new_obj = self.new(nil, nil, nil)
-        new_obj.update(doc || {})
+        new_obj.update(doc)
         new_obj
     end
 
