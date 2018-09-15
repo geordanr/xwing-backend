@@ -21,6 +21,7 @@ PROVIDERS = {
 VALID_SETTINGS = [
     'language',
     'hugeShipMovedWarningSeen',
+    'collectioncheck',
 ]
 
 INTERESTING_HEADERS = [
