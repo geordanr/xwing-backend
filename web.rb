@@ -21,7 +21,6 @@ PROVIDERS = {
 VALID_SETTINGS = [
     'language',
     'hugeShipMovedWarningSeen',
-    'collectioncheck',
 ]
 
 INTERESTING_HEADERS = [
@@ -318,7 +317,8 @@ class XWingSquadDatabase < Sinatra::Base
 
         json :collection => {
             'expansions' => collection['expansions'],
-            'singletons' => collection['singletons']
+            'singletons' => collection['singletons'],
+            'checks' => collection['checks']
         }
     end
 
@@ -328,6 +328,7 @@ class XWingSquadDatabase < Sinatra::Base
         collection = get_collection
         collection['expansions'] = params[:expansions]
         collection['singletons'] = params[:singletons]
+        collection['checks'] = params[:checks]
         begin
             _ = settings.db.save_doc(collection)
             json :success => true, :error => nil
@@ -397,6 +398,7 @@ class Collection < Hash
         self['user_id'] = user_id
         self['expansions'] = expansions
         self['singletons'] = singletons
+        self['checks'] = checks
     end
 
     def self.fromDoc(doc)
