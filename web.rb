@@ -104,7 +104,7 @@ class XWingSquadDatabase < Sinatra::Base
         end
 
         def get_collection()
-            collection = Collection.new(env['xwing.user']['_id'], {}, {})
+            collection = Collection.new(env['xwing.user']['_id'], {}, {}, {})
 
             begin
                 collection_doc = settings.db.get(collection['_id'])
@@ -392,7 +392,7 @@ class Squad < Hash
 end
 
 class Collection < Hash
-    def initialize(user_id, expansions, singletons)
+    def initialize(user_id, expansions, singletons, checks)
         self['_id'] = "collection_#{user_id}"
         self['type'] = 'collection'
         self['user_id'] = user_id
@@ -402,12 +402,12 @@ class Collection < Hash
     end
 
     def self.fromDoc(doc)
-        new_obj = self.new(nil, nil, nil)
+        new_obj = self.new(nil, nil, nil, nil)
         new_obj.update(doc)
         new_obj
     end
 
     def to_s
-        "#<Collection id=#{self['_id']}, user_id=#{self['user_id']}, expansions=#{self['expansions']}, singletons=#{self['singletons']}>"
+        "#<Collection id=#{self['_id']}, user_id=#{self['user_id']}, expansions=#{self['expansions']}, singletons=#{self['singletons']}, checks=#{self['checks']}>"
     end
 end
