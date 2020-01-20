@@ -130,5 +130,5 @@ Used to check session authentication.  Returns `{ success: true }` or 403.
 ### Running Locally
 
     ```
-    env ALLOWED_ORIGINS='*' SESSION_SECRET=abc rackup config.ru
+    env ALLOWED_ORIGINS='*' SESSION_SECRET=abc bundle exec rackup config.ru
     ```
