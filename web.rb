@@ -55,7 +55,9 @@ class XWingSquadDatabase < Sinatra::Base
     # Middleware
 
     use Rack::Session::Cookie,  :expire_after => 2592000,
-                                :secret => ENV['SESSION_SECRET']
+                                :secret => ENV['SESSION_SECRET'],
+                                :same_site => :none,
+                                :secure => true
 
     use OmniAuth::Builder do
         PROVIDERS.each do |provider_name, provider_args|

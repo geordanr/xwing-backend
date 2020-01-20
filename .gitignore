@@ -1,3 +1,5 @@
 *.swp
 dev_cloudant.url
 .env
+vendor
+.bundle
