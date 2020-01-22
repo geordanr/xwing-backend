@@ -68,7 +68,7 @@ class XWingSquadDatabase < Sinatra::Base
     use Rack::Cors do
         allow do
             origins ENV['ALLOWED_ORIGINS']
-            resource '*', :credentials => false,
+            resource '*', :credentials => true,
                 :methods => [ :get, :post, :put, :delete ],
                 :headers => :any
         end
@@ -203,28 +203,28 @@ class XWingSquadDatabase < Sinatra::Base
         json :methods => PROVIDERS.keys
     end
 
-    # Unprotected; everyone can view the full list
-    get '/all' do
-        out = {
-            'Rebel Alliance' => [],
-            'Galactic Empire' => [],
-            'Scum and Villainy' => [],
-            'Resistance' => [],
-            'First Order' => [],
-            'Galactic Republic' => [],
-            'Separatist Alliance' => [],
-        }
-        settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
-            _, faction, name = row['key']
-            out[faction].push({
-                :id => row['id'],
-                :name => name,
-                :serialized => row['value']['serialized'] || nil,
-                :additional_data => row['value']['additional_data'] || nil,
-            })
-        end
-        json out
-    end
+    # # Unprotected; everyone can view the full list
+    # get '/all' do
+    #     out = {
+    #         'Rebel Alliance' => [],
+    #         'Galactic Empire' => [],
+    #         'Scum and Villainy' => [],
+    #         'Resistance' => [],
+    #         'First Order' => [],
+    #         'Galactic Republic' => [],
+    #         'Separatist Alliance' => [],
+    #     }
+    #     settings.db.view('squads/list', { :reduce => false })['rows'].each do |row|
+    #         _, faction, name = row['key']
+    #         out[faction].push({
+    #             :id => row['id'],
+    #             :name => name,
+    #             :serialized => row['value']['serialized'] || nil,
+    #             :additional_data => row['value']['additional_data'] || nil,
+    #         })
+    #     end
+    #     json out
+    # end
 
     get '/squads/list' do
         out = {
