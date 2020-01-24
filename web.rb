@@ -388,7 +388,6 @@ class Squad < Hash
         self['name'] = name
         self['faction'] = faction
         self['additional_data'] = additional_data.to_hash
-        end
     end
 
     def self.fromDoc(doc)
