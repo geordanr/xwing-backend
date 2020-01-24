@@ -387,7 +387,11 @@ class Squad < Hash
         self['serialized'] = serialized_str
         self['name'] = name
         self['faction'] = faction
-        self['additional_data'] = additional_data.to_hash
+        begin
+            self['additional_data'] = additional_data.to_hash
+        rescue
+            self['additional_data'] = {}
+        end
     end
 
     def self.fromDoc(doc)
