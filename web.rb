@@ -387,8 +387,7 @@ class Squad < Hash
         self['serialized'] = serialized_str
         self['name'] = name
         self['faction'] = faction
-        if additional_data.instance_of? Hash
-            self['additional_data'] = additional_data.to_hash
+        self['additional_data'] = additional_data.to_hash
         end
     end
 
