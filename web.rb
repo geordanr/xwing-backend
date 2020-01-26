@@ -66,11 +66,13 @@ class XWingSquadDatabase < Sinatra::Base
     end
 
     use Rack::Cors do
-        allow do
-            origins ENV['ALLOWED_ORIGINS']
-            resource '*', :credentials => true,
-                :methods => [ :get, :post, :put, :delete ],
-                :headers => :any
+        ENV['ALLOWED_ORIGINS'].split do |origin|
+            allow do
+                origins origin
+                resource '*', :credentials => true,
+                    :methods => [ :get, :post, :put, :delete ],
+                    :headers => :any
+            end
         end
     end
 
