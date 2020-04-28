@@ -122,13 +122,9 @@ Used to check session authentication.  Returns `{ success: true }` or 403.
 
 ### Local Setup
 
-    ```
     bundle install --path vendor/bundle
     bundle update
-    ```
 
 ### Running Locally
 
-    ```
-    env ALLOWED_ORIGINS='*' SESSION_SECRET=abc bundle exec rackup config.ru
-    ```
+    env ALLOWED_ORIGINS='localhost' SESSION_SECRET=abc bundle exec rackup config.ru
