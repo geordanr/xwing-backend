@@ -239,6 +239,7 @@ class XWingSquadDatabase < Sinatra::Base
             'First Order' => [],
             'Galactic Republic' => [],
             'Separatist Alliance' => [],
+            'All' => [],
         }
         settings.db.view('squads/list', { :reduce => false, :startkey => [ env['xwing.user']['_id'] ], :endkey => [ env['xwing.user']['_id'], {}, {} ] })['rows'].each do |row|
             _, faction, name = row['key']
